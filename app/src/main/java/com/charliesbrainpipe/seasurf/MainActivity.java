@@ -9,10 +9,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity implements URLChangedEventListener {
+public class MainActivity extends AppCompatActivity {
     MyWebView myWebView;
 
-    EditText addressBar;
+    AddressBar addressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,12 +25,7 @@ public class MainActivity extends AppCompatActivity implements URLChangedEventLi
             return insets;
         });
 
-        addressBar = findViewById(R.id.addressBar);
+        addressBar = new AddressBar(findViewById(R.id.addressBar));
         myWebView = new MyWebView(this, findViewById(R.id.geckoview));
-        URLChangedEventObject.addListener(this);
-    }
-
-    public void onURLChange(URLChangedEventObject source, String url) {
-        addressBar.setText(url);
     }
 }
