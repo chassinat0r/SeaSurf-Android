@@ -7,13 +7,18 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity implements ButtonClickedEventListener, GoToPageEventListener  {
+public class MainActivity extends AppCompatActivity implements ButtonClickedEventListener  {
     MyWebView myWebView;
 
     AddressBar addressBar;
@@ -24,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements ButtonClickedEven
     ButtonHandler historyBtn;
 
     HistoryDbHelper dbHelper;
+
+    ActivityResultLauncher<Intent> resultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,19 +56,36 @@ public class MainActivity extends AppCompatActivity implements ButtonClickedEven
         historyBtn = new ButtonHandler(findViewById(R.id.historyBtn), "history");
 
         ButtonClickedEventObject.addListener(this);
-        GoToPageEventObject.addListener(this);
+
+        resultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult o) {
+                        if (o.getResultCode() == RESULT_OK) {
+                            Intent data = o.getData();
+                            String url = data.getStringExtra("url");
+                            if (url != null) {
+                                myWebView.goTo(url);
+                            }
+                        }
+                    }
+                }
+        );
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (myWebView.canGoBack()) {
+                    myWebView.goBack();
+                }
+            }
+        });
     }
 
     public void onButtonClick(ButtonClickedEventObject event) {
         if (event.getAction().equals("history")) {
-            Context context = MainActivity.this;
-            Class destinationActivity = HistoryActivity.class;
-            Intent intent = new Intent(context, destinationActivity);
-            startActivity(intent);
+            Intent intent = new Intent(this, HistoryActivity.class);
+            resultLauncher.launch(intent);
         }
-    }
-
-    public void onGoToPage(GoToPageEventObject event) {
-        myWebView.goTo(event.getUrl());
     }
 }

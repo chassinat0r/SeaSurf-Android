@@ -1,5 +1,6 @@
 package com.charliesbrainpipe.seasurf;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.ArrayMap;
@@ -8,6 +9,7 @@ import android.widget.Button;
 import android.window.SurfaceSyncGroup;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -24,6 +26,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemCli
 
     ArrayList<String[]> history = new ArrayList<>();
 
+    Button backButton;
     Button clearButton;
 
     @Override
@@ -37,6 +40,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemCli
             return insets;
         });
 
+        backButton = findViewById(R.id.backBtn);
         clearButton = findViewById(R.id.clearBtn);
 
         dbHelper = HistoryDbHelper.getInstance();
@@ -63,12 +67,38 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemCli
                 recreate();
             }
         });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitActivity();
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                exitActivity();
+            }
+        });
     }
 
     public void onHistoryItemClicked(HistoryItemClickedEventObject event, int position) {
         if (position < history.size()) {
-            new GoToPageEventObject(this, history.get(position)[1]);
+            Intent goToUrlIntent = new Intent();
+            goToUrlIntent.putExtra("url", history.get(position)[1]);
+            setResult(RESULT_OK, goToUrlIntent);
             finish();
         }
+    }
+
+    private void exitActivity() {
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 }
