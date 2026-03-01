@@ -3,8 +3,12 @@ package com.charliesbrainpipe.seasurf;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -18,7 +22,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity implements ButtonClickedEventListener  {
+public class MainActivity extends AppCompatActivity  {
     MyWebView myWebView;
 
     AddressBar addressBar;
@@ -26,11 +30,12 @@ public class MainActivity extends AppCompatActivity implements ButtonClickedEven
     ButtonHandler backBtn;
     ButtonHandler reloadBtn;
     ButtonHandler homeBtn;
-    ButtonHandler historyBtn;
 
     HistoryDbHelper dbHelper;
 
     ActivityResultLauncher<Intent> resultLauncher;
+
+    Toolbar topToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +58,6 @@ public class MainActivity extends AppCompatActivity implements ButtonClickedEven
         backBtn = new ButtonHandler(findViewById(R.id.backBtn), "back");
         reloadBtn = new ButtonHandler(findViewById(R.id.reloadBtn), "reload");
         homeBtn = new ButtonHandler(findViewById(R.id.homeBtn), "home");
-        historyBtn = new ButtonHandler(findViewById(R.id.historyBtn), "history");
-
-        ButtonClickedEventObject.addListener(this);
 
         resultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -80,12 +82,26 @@ public class MainActivity extends AppCompatActivity implements ButtonClickedEven
                 }
             }
         });
+
+        topToolbar = findViewById(R.id.topToolbar);
+        setSupportActionBar(topToolbar);
     }
 
-    public void onButtonClick(ButtonClickedEventObject event) {
-        if (event.getAction().equals("history")) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.history) {
             Intent intent = new Intent(this, HistoryActivity.class);
             resultLauncher.launch(intent);
+            return true;
         }
+
+        return super.onOptionsItemSelected(item);
     }
 }
