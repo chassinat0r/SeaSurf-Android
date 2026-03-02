@@ -1,5 +1,6 @@
 package com.charliesbrainpipe.seasurf;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity  {
     ActivityResultLauncher<Intent> tabResultLauncher;
 
     Toolbar topToolbar;
+
+    static DownloadManager downloadManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +151,8 @@ public class MainActivity extends AppCompatActivity  {
 
         topToolbar = findViewById(R.id.topToolbar);
         setSupportActionBar(topToolbar);
+
+        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
     }
 
     @Override

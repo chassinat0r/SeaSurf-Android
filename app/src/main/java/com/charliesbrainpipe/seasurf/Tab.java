@@ -1,6 +1,12 @@
 package com.charliesbrainpipe.seasurf;
 
+import static android.os.Environment.getExternalStoragePublicDirectory;
+
+import android.app.DownloadManager;
 import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
+import android.widget.Toast;
 
 import org.mozilla.geckoview.AllowOrDeny;
 import org.mozilla.geckoview.GeckoResult;
@@ -8,6 +14,8 @@ import org.mozilla.geckoview.GeckoRuntime;
 import org.mozilla.geckoview.GeckoRuntimeSettings;
 import org.mozilla.geckoview.GeckoSession;
 import org.mozilla.geckoview.GeckoView;
+import org.mozilla.geckoview.WebExtension;
+import org.mozilla.geckoview.WebResponse;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,6 +35,10 @@ public class Tab implements AddressBarDoneEventListener {
     private static ArrayList<Tab> tabs = new ArrayList<>();
     private static Tab currentTab;
 
+    private static Toast downloadNotification;
+
+    private boolean wasRedirect = false;
+
     public class MyNavigationDelegate implements GeckoSession.NavigationDelegate {
         @Override
         public GeckoResult<AllowOrDeny> onLoadRequest(GeckoSession session, GeckoSession.NavigationDelegate.LoadRequest request) {
@@ -38,7 +50,12 @@ public class Tab implements AddressBarDoneEventListener {
 
             if (url != null) {
                 String titleToPush = (title != null && !title.isEmpty()) ? title : url;
+                if (request.isRedirect) {
+                    history.pop();
+                }
+
                 history.push(new String[]{titleToPush, url});
+
                 HistoryDbHelper dbHelper = HistoryDbHelper.getInstance();
                 if (dbHelper != null) {
                     dbHelper.addEntry(titleToPush, url, Calendar.getInstance());
@@ -47,6 +64,7 @@ public class Tab implements AddressBarDoneEventListener {
             }
 
             url = request.uri;
+            wasRedirect = request.isRedirect;
 
             result.complete(AllowOrDeny.ALLOW); // Allow GeckoView to load the request
 
@@ -58,6 +76,26 @@ public class Tab implements AddressBarDoneEventListener {
         @Override
         public void onTitleChange(GeckoSession session, String t) {
             title = t;
+        }
+
+        @Override
+        public void onExternalResponse(GeckoSession session, WebResponse response) {
+            String downloadUri = response.uri;
+            String[] uriSplit = downloadUri.split("/");
+            String fileName = uriSplit[uriSplit.length-1];
+            System.out.println(fileName);
+
+            if (MainActivity.downloadManager != null) {
+                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUri));
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                MainActivity.downloadManager.enqueue(request);
+
+                goBack();
+
+                downloadNotification.show();
+            }
+
         }
     }
 
@@ -84,6 +122,8 @@ public class Tab implements AddressBarDoneEventListener {
         }
 
         Tab.geckoView = geckoView;
+
+        downloadNotification = Toast.makeText(context, "Downloading file...", Toast.LENGTH_SHORT);
     }
 
     public void goTo(String url) {
