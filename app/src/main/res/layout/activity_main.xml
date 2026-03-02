@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -9,8 +10,7 @@
         android:id="@+id/topToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FAFAFA"
-        android:minHeight="?attr/actionBarSize"
+        android:background="#F4F4F4"
         android:theme="?attr/actionBarTheme">
 
         <LinearLayout
@@ -41,9 +41,12 @@
         android:id="@+id/bottomToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme">
+        android:background="#F4F4F4"
+        android:theme="?attr/actionBarTheme"
+        android:layout_marginStart="0dp"
+        app:contentInsetStart="0dp"
+        app:contentInsetEnd="0dp"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,27 +55,39 @@
             android:layout_weight="1"
             >
 
-            <Button
+            <ImageButton
                 android:id="@+id/backBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Back" />
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/back" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/reloadBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reload" />
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/reload" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/homeBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Home" />
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/home" />
+
+            <ImageButton
+                android:id="@+id/tabsBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/tabs" />
 
         </LinearLayout>
 
     </androidx.appcompat.widget.Toolbar>
-
-
 </LinearLayout>

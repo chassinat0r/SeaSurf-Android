@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.ArrayMap;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.window.SurfaceSyncGroup;
 
 import androidx.activity.EdgeToEdge;
@@ -26,7 +27,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemCli
 
     ArrayList<String[]> history = new ArrayList<>();
 
-    Button backButton;
+    ImageButton backButton;
     Button clearButton;
 
     @Override
@@ -95,10 +96,5 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemCli
     private void exitActivity() {
         setResult(RESULT_CANCELED);
         finish();
-    }
-
-    @Override
-    public void onBackPressed() {
-
     }
 }

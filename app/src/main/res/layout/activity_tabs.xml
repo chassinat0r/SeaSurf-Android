@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    tools:context=".HistoryActivity">
+    tools:context=".TabsActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,26 +37,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="History"
+                    android:text="Tabs"
                     android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    />
+
+                <ImageButton
+                    android:id="@+id/newTabBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:layout_marginRight="10dp"
+                    app:srcCompat="@drawable/new_white" />
 
             </LinearLayout>
 
-
         </androidx.appcompat.widget.Toolbar>
 
-        <Button
-            android:id="@+id/clearBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Clear History" />
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/historyView"
+            android:id="@+id/tabView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
 
     </LinearLayout>
 </RelativeLayout>

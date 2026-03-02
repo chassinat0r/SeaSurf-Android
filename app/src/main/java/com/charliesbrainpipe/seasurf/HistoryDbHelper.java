@@ -1,5 +1,6 @@
 package com.charliesbrainpipe.seasurf;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,14 +10,14 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class HistoryDbHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "history.db";
 
     public static final String CREATE_STATEMENT =
             "CREATE TABLE IF NOT EXISTS History (" +
                     "pageTitle TEXT," +
                     "pageURL TEXT," +
-                    "dateTimeAccessed DATETIME" +
+                    "dateTimeAccessed INTEGER" +
             ");";
 
     public static final String CLEAR_STATEMENT = "DELETE FROM History;";
@@ -58,16 +59,14 @@ public class HistoryDbHelper extends SQLiteOpenHelper {
     }
 
     public void addEntry(String pageTitle, String pageURL, Calendar c) {
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
-        String dateTimeFormat = year + "-" + ((month < 10) ? "0" + month : month) + "-" + ((day < 10) ? "0" + day : day) + " " + ((hour < 10) ? "0" + hour : hour) + ":" + ((minute < 10) ? "0" + minute : minute);
+        ContentValues values = new ContentValues();
+        values.put("pageTitle", pageTitle);
+        values.put("pageURL", pageURL);
+        values.put("dateTimeAccessed", c.getTimeInMillis());
 
         SQLiteDatabase db = getWritableDatabase();
 
-        db.execSQL("INSERT INTO History (pageTitle, pageURL, dateTimeAccessed) VALUES('" + pageTitle + "', '" + pageURL + "', '" + dateTimeFormat + "');");
+        db.insert("History", null, values);
     }
 
     public Cursor getHistory() {

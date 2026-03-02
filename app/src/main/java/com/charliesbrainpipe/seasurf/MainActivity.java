@@ -6,8 +6,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
@@ -22,18 +25,21 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity  {
-    MyWebView myWebView;
+import java.util.ArrayList;
 
+public class MainActivity extends AppCompatActivity  {
     AddressBar addressBar;
 
-    ButtonHandler backBtn;
-    ButtonHandler reloadBtn;
-    ButtonHandler homeBtn;
+    ImageButton backBtn;
+    ImageButton reloadBtn;
+    ImageButton homeBtn;
+    ImageButton tabsBtn;
 
     HistoryDbHelper dbHelper;
 
-    ActivityResultLauncher<Intent> resultLauncher;
+    ActivityResultLauncher<Intent> historyResultLauncher;
+
+    ActivityResultLauncher<Intent> tabResultLauncher;
 
     Toolbar topToolbar;
 
@@ -53,13 +59,51 @@ public class MainActivity extends AppCompatActivity  {
         dbHelper = HistoryDbHelper.getInstance();
 
         addressBar = new AddressBar(findViewById(R.id.addressBar));
-        myWebView = new MyWebView(this, findViewById(R.id.geckoview));
 
-        backBtn = new ButtonHandler(findViewById(R.id.backBtn), "back");
-        reloadBtn = new ButtonHandler(findViewById(R.id.reloadBtn), "reload");
-        homeBtn = new ButtonHandler(findViewById(R.id.homeBtn), "home");
+        Tab.init(this, findViewById(R.id.geckoview));
+        int newTab = Tab.newTab("https://google.com");
+        Tab.changeTab(newTab);
 
-        resultLauncher = registerForActivityResult(
+        backBtn = findViewById(R.id.backBtn);
+        reloadBtn = findViewById(R.id.reloadBtn);
+        homeBtn = findViewById(R.id.homeBtn);
+        tabsBtn = findViewById(R.id.tabsBtn);
+
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Tab currentTab = Tab.getCurrentTab();
+                if (currentTab.canGoBack()) {
+                    currentTab.goBack();
+                }
+            }
+        });
+
+        reloadBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Tab currentTab = Tab.getCurrentTab();
+                currentTab.reload();
+            }
+        });
+
+        homeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Tab currentTab = Tab.getCurrentTab();
+                currentTab.goHome();
+            }
+        });
+
+        tabsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), TabsActivity.class);
+                tabResultLauncher.launch(intent);
+            }
+        });
+
+        historyResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
@@ -68,17 +112,36 @@ public class MainActivity extends AppCompatActivity  {
                             Intent data = o.getData();
                             String url = data.getStringExtra("url");
                             if (url != null) {
-                                myWebView.goTo(url);
+                                Tab currentTab = Tab.getCurrentTab();
+                                currentTab.goTo(url);
                             }
                         }
                     }
                 }
         );
+
+        tabResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult o) {
+                        if (o.getResultCode() == RESULT_OK) {
+                            Intent data = o.getData();
+                            int index = data.getIntExtra("index", -1);
+                            if (index >= 0) {
+                                Tab.changeTab(index);
+                            }
+                        }
+                    }
+                }
+        );
+
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (myWebView.canGoBack()) {
-                    myWebView.goBack();
+                Tab currentTab = Tab.getCurrentTab();
+                if (currentTab.canGoBack()) {
+                    currentTab.goBack();
                 }
             }
         });
@@ -98,10 +161,12 @@ public class MainActivity extends AppCompatActivity  {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.history) {
             Intent intent = new Intent(this, HistoryActivity.class);
-            resultLauncher.launch(intent);
+            historyResultLauncher.launch(intent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    public MainActivity getActivity() { return this; }
 }
