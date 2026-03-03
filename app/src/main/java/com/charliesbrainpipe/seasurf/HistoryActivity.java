@@ -22,11 +22,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class HistoryActivity extends AppCompatActivity implements HistoryItemClickedEventListener {
+    // Recycler View
     RecyclerView historyView;
+
+    // Database Helper
     HistoryDbHelper dbHelper;
 
+    // Previously visited URLs and titles
     ArrayList<String[]> history = new ArrayList<>();
 
+    // Buttons
     ImageButton backButton;
     Button clearButton;
 
@@ -41,26 +46,32 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemCli
             return insets;
         });
 
+        dbHelper = HistoryDbHelper.getInstance(); // Get DB helper
+
+        // Define elements
         backButton = findViewById(R.id.backBtn);
         clearButton = findViewById(R.id.clearBtn);
-
-        dbHelper = HistoryDbHelper.getInstance();
         historyView = findViewById(R.id.historyView);
 
-        Cursor cursor = dbHelper.getHistory();
+        Cursor cursor = dbHelper.getHistory(); // Get all entries in history as a cursor to navigate through
 
-        while (cursor.moveToNext()) {
+        while (cursor.moveToNext()) { // Go through history until there are no entries left
+            // Get title and URL
             String title = cursor.getString(cursor.getColumnIndexOrThrow("pageTitle"));
             String url = cursor.getString(cursor.getColumnIndexOrThrow("pageURL"));
+            // Add to history ArrayList
             history.add(new String[]{title, url});
         }
 
-        historyView.setLayoutManager(new LinearLayoutManager(this));
+        historyView.setLayoutManager(new LinearLayoutManager(this)); // Use LinearLayout for the history recycler view
+
+        // Use a specialised adapter to bind the recycler view to the history data
         HistoryAdapter adapter = new HistoryAdapter(history);
         historyView.setAdapter(adapter);
 
-        HistoryItemClickedEventObject.addListener(this);
+        HistoryItemClickedEventObject.addListener(this); // Listen for any item in the recycler view being clicked
 
+        // When the clear button is clicked, clear history and reload the activity
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,6 +80,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemCli
             }
         });
 
+        // When the back button is clicked, exit the activity
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,6 +88,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemCli
             }
         });
 
+        // When the back button in the Android navigation bar is clicked, exit the activity
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -84,15 +97,25 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemCli
         });
     }
 
+    /* void onHistoryItemClicked
+    Handle an item in the RecyclerView being clicked
+    Params:
+    - HistoryItemClickedEventObject event: the event fired
+    - int position: The index in the History ArrayList that was clicked
+     */
     public void onHistoryItemClicked(HistoryItemClickedEventObject event, int position) {
-        if (position < history.size()) {
-            Intent goToUrlIntent = new Intent();
-            goToUrlIntent.putExtra("url", history.get(position)[1]);
+        if (position < history.size()) { // If position is in range
+            // Inform the calling activity (MainActivity) that this activity is finished and what URL to go to
+            Intent goToUrlIntent = new Intent(); // Create a new intent
+            goToUrlIntent.putExtra("url", history.get(position)[1]); // Tell the main activity the URL of the clicked item
             setResult(RESULT_OK, goToUrlIntent);
-            finish();
+            finish(); // Exit this activity
         }
     }
 
+    /* void exitActivity
+    Exit the activity
+     */
     private void exitActivity() {
         setResult(RESULT_CANCELED);
         finish();

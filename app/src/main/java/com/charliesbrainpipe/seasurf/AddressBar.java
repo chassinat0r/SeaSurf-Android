@@ -5,6 +5,10 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
+/* Address Bar class
+* Make an EditText an address bar and handle submission
+*/
+
 public class AddressBar implements URLChangedEventListener {
     private EditText editText;
 
@@ -13,7 +17,7 @@ public class AddressBar implements URLChangedEventListener {
     - editText: The address bar component
     */
     public AddressBar(EditText editText) {
-        this.editText = editText;
+        this.editText = editText; // Store EditText
         // Handle editor actions for the address bar
         this.editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
