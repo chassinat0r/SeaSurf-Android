@@ -10,12 +10,4 @@
         android:id="@+id/settings"
         android:title="Settings" />
 
-    <item
-        android:id="@+id/downloads"
-        android:title="Downloads" />
-
-    <item
-        android:id="@+id/bookmarks"
-        android:title="Bookmarks" />
-
 </menu>

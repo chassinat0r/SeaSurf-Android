@@ -2,10 +2,15 @@ package com.charliesbrainpipe.seasurf;
 
 import static android.os.Environment.getExternalStoragePublicDirectory;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
 import android.widget.Toast;
 
 import org.mozilla.geckoview.AllowOrDeny;
@@ -39,6 +44,8 @@ public class Tab implements AddressBarDoneEventListener {
 
     private boolean wasRedirect = false;
 
+    private static Context context;
+
     public class MyNavigationDelegate implements GeckoSession.NavigationDelegate {
         @Override
         public GeckoResult<AllowOrDeny> onLoadRequest(GeckoSession session, GeckoSession.NavigationDelegate.LoadRequest request) {
@@ -50,7 +57,7 @@ public class Tab implements AddressBarDoneEventListener {
 
             if (url != null) {
                 String titleToPush = (title != null && !title.isEmpty()) ? title : url;
-                if (request.isRedirect) {
+                if (request.isRedirect && !history.isEmpty()) {
                     history.pop();
                 }
 
@@ -95,7 +102,6 @@ public class Tab implements AddressBarDoneEventListener {
 
                 downloadNotification.show();
             }
-
         }
     }
 
@@ -103,7 +109,7 @@ public class Tab implements AddressBarDoneEventListener {
         session = new GeckoSession();
 
         if (url == null || url.isEmpty()) {
-            url = "https://google.com";
+            url = Preferences.getHomePage();
         }
 
         session.open(sRuntime);
@@ -122,6 +128,8 @@ public class Tab implements AddressBarDoneEventListener {
         }
 
         Tab.geckoView = geckoView;
+
+        Tab.context = context;
 
         downloadNotification = Toast.makeText(context, "Downloading file...", Toast.LENGTH_SHORT);
     }
@@ -174,7 +182,26 @@ public class Tab implements AddressBarDoneEventListener {
 
             if (!(url.startsWith("http://") || url.startsWith("https://"))) { // If URL doesn't start with http(s)
                 if ((!url.contains(".") && !url.equals("localhost")) || url.contains(" ")) { // If URL doesn't contain a dot for domain extension and is not localhost
-                    url = "http://www.google.com/search?q=" + url; // Assume it to be a search query
+                    // Assume it to be a search query
+                    int searchEngine = Preferences.getSearchEngine();
+                    switch (searchEngine) {
+                        case 0: {
+                            url = "http://www.google.com/search?q=" + url;
+                            break;
+                        }
+                        case 1: {
+                            url = "http://www.bing.com/search?q=" + url;
+                            break;
+                        }
+                        case 2: {
+                            url = "http://search.yahoo.com/search?p=" + url;
+                            break;
+                        }
+                        case 3: {
+                            url = "http://duckduckgo.com/?ia=web&q=" + url;
+                            break;
+                        }
+                    }
                 } else { // If URL contains a dot or is localhost, assume it to be a website just without http prefix
                     url = "http://" + url; // Prepend http
                 }
@@ -200,7 +227,7 @@ public class Tab implements AddressBarDoneEventListener {
 
     public void reload() { session.reload(); }
 
-    public void goHome() { goTo("https://google.com"); }
+    public void goHome() { goTo(Preferences.getHomePage()); }
 
     public static ArrayList<Tab> getTabs() { return tabs; }
 

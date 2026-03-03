@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity  {
 
     ActivityResultLauncher<Intent> tabResultLauncher;
 
+    ActivityResultLauncher<Intent> settingsResultLauncher;
+
     Toolbar topToolbar;
 
     static DownloadManager downloadManager;
@@ -63,8 +65,10 @@ public class MainActivity extends AppCompatActivity  {
 
         addressBar = new AddressBar(findViewById(R.id.addressBar));
 
+        Preferences.load(this);
+
         Tab.init(this, findViewById(R.id.geckoview));
-        int newTab = Tab.newTab("https://google.com");
+        int newTab = Tab.newTab(Preferences.getHomePage());
         Tab.changeTab(newTab);
 
         backBtn = findViewById(R.id.backBtn);
@@ -139,6 +143,18 @@ public class MainActivity extends AppCompatActivity  {
                 }
         );
 
+        settingsResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult o) {
+                        if (o.getResultCode() == RESULT_OK) {
+                            Preferences.commitChanges();
+                        }
+                    }
+                }
+        );
+
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -167,6 +183,10 @@ public class MainActivity extends AppCompatActivity  {
         if (item.getItemId() == R.id.history) {
             Intent intent = new Intent(this, HistoryActivity.class);
             historyResultLauncher.launch(intent);
+            return true;
+        } else if (item.getItemId() == R.id.settings) {
+            Intent intent = new Intent(getActivity(), SettingsActivity.class);
+            settingsResultLauncher.launch(intent);
             return true;
         }
 
