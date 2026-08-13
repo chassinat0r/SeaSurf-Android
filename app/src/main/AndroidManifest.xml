@@ -15,16 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SeaSurf">
         <activity
-            android:name=".TabsActivity"
+            android:name="xyz.segfaulty.seasurf.TabsActivity"
             android:exported="false" />
         <activity
-            android:name=".HistoryActivity"
+            android:name="xyz.segfaulty.seasurf.HistoryActivity"
             android:exported="false" />
         <activity
-            android:name=".SettingsActivity"
+            android:name="xyz.segfaulty.seasurf.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name="xyz.segfaulty.seasurf.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

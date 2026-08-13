@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace 'com.charliesbrainpipe.seasurf'
+    namespace 'xyz.segfaulty.seasurf'
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId "com.charliesbrainpipe.seasurf"
+        applicationId "xyz.segfaulty.seasurf"
         minSdk 23
         targetSdk 36
         versionCode 1
